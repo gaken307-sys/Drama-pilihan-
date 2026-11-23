@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nonton Drama</title>
+  <!-- Skrip Resmi Telegram Mini App -->
+  <script src="https://telegram.org"></script>
+  <style>
+    body {
+      background-color: #18222d;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+    }
+    .card {
+      background: #222e3c;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    h2 {
+      margin: 0 0 6px 0;
+      font-size: 20px;
+    }
+    .meta {
+      color: #9aa8b8;
+      font-size: 14px;
+      margin: 0 0 16px 0;
+    }
+    .btn {
+      background-color: #5b6ef5;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn:active {
+      opacity: 0.85;
+    }
+    .player-wrapper {
+      display: none;
+      margin-top: 14px;
+    }
+    video, iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: none;
+      border-radius: 8px;
+      background: #000000;
+    }
+    .episode-list {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .ep-btn {
+      background: #2c3b4d;
+      color: #ffffff;
+      border: 1px solid #3c4f66;
+      padding: 10px 0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .ep-btn.active {
+      background: #5b6ef5;
+      border-color: #5b6ef5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Susuku, Pedangku</h2>
+    <p class="meta">62 Episode • Drama</p>
+    
+    <button class="btn" id="mainBtn" onclick="mulaiNonton()">▶ Mulai Nonton Episode 1</button>
+
+    <!-- Wadah Pemutar Video -->
+    <div class="player-wrapper" id="playerBox">
+      <!-- Pemutar untuk link langsung (.mp4) -->
+      <video id="videoPlayer" controls playsinline></video>
+      <!-- Pemutar untuk link embed (Google Drive / YouTube / Dailymotion) -->
+      <iframe id="iframePlayer" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    </div>
+
+    <!-- Daftar Episode -->
+    <div class="episode-list" id="episodeList"></div>
+  </div>
+
+  <script>
+    // Inisialisasi Telegram Web App dengan aman
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+    }
+
+    // GANTI LINK VIDEO DI BAWAH INI DENGAN LINK ASLI ANDA
+    // Bisa berupa link langsung (.mp4) ATAU link embed (contoh: Google Drive /preview atau YouTube /embed)
+    const daftarEpisode = [
+      { ep: 1, url: "https://googleapis.com" },
+      { ep: 2, url: "https://googleapis.com" },
+      { ep: 3, url: "https://googleapis.com" },
+      { ep: 4, url: "https://googleapis.com" }
+    ];
+
+    let episodeAktif = 1;
+    const episodeContainer = document.getElementById('episodeList');
+
+    // Buat tombol episode otomatis
+    daftarEpisode.forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'ep-btn';
+      btn.id = 'ep-' + item.ep;
+      btn.innerText = 'Ep ' + item.ep;
+      btn.onclick = () => putarEpisode(item.ep, item.url);
+      episodeContainer.appendChild(btn);
+    });
+
+    function mulaiNonton() {
+      const epPertama = daftarEpisode[0];
+      putarEpisode(epPertama.ep, epPertama.url);
+    }
+
+    function putarEpisode(nomorEp, linkVideo) {
+      episodeAktif = nomorEp;
+      const playerBox = document.getElementById('playerBox');
+      const videoPlayer = document.getElementById('videoPlayer');
+      const iframePlayer = document.getElementById('iframePlayer');
+      const mainBtn = document.getElementById('mainBtn');
+
+      playerBox.style.display = 'block';
+      mainBtn.innerText = 'Sedang Memutar Episode ' + nomorEp;
+
+      // Tandai tombol episode yang aktif
+      document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('ep-' + nomorEp);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      // Deteksi otomatis apakah link berupa file .mp4 langsung atau embed (Drive/YouTube)
+      if (linkVideo.includes('.mp4') || linkVideo.includes('.m3u8')) {
+        iframePlayer.style.display = 'none';
+        iframePlayer.src = '';
+        videoPlayer.style.display = 'block';
+        videoPlayer.src = linkVideo;
+        videoPlayer.play().catch(() => {});
+      } else {
+        videoPlayer.pause();
+        videoPlayer.style.display = 'none';
+        videoPlayer.src = '';
+        iframePlayer.style.display = 'block';
+        iframePlayer.src = linkVideo;
+      }
+    }
+  </script>
+
+</body>
+</html>
